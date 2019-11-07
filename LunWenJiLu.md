@@ -14,15 +14,15 @@
 
 论文分类
 
-![](C:\Users\Administrator\Desktop\LunWen\图片\2019-11-06_221110.png)
+![](图片\2019-11-06_221110.png)
 
 出版年份
 
-![](C:\Users\Administrator\Desktop\LunWen\图片\2019-11-06_221225.png)
+![](图片\2019-11-06_221225.png)
 
 国家分布
 
-![](C:\Users\Administrator\Desktop\LunWen\图片\2019-11-06_221751.png)
+![](图片\2019-11-06_221751.png)
 
 
 
