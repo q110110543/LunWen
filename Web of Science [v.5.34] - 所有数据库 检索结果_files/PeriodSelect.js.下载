@@ -1,0 +1,313 @@
+function clear_years() {
+// if user chooses a period other than
+// "year selection", we want to clear out
+// the checkboxes for individual years.
+  var frm = document.forms[0];
+
+  for(var i = 0; i < frm.year.length; i++) {
+     frm.year[i].checked = false;
+  }
+
+  return true;
+}
+
+function set_period(index) {
+// sets a specific radio button from
+// the "period" group to "checked".
+// Specifically, can be used to set period to
+// "Year Selection", which is idx '4' for WoS,
+// when a year is clicked on the form.
+
+   document.forms[0].period[index].checked = true;
+   return true;
+}
+
+
+function select_week_button(idx)
+  {
+  //if(idx==undefined) idx=0;
+  if(! idx.length) idx=0;
+
+  document.forms[0].period[idx].checked= true;
+  return true;
+  }
+
+function select_year_button(idx, search_form)
+  {
+  // catch exception. In case wrong index is specified or element 'period' not  
+  // available and the browser is not forgiving, other function which is called 
+  // after this will not get executed.
+	
+  try {
+   if(! idx.length) idx=1;
+   document.getElementById(search_form).period[idx].checked= true;
+   } catch (e) {
+    ;
+   }
+
+   return true;
+  }
+
+function select_custom(idx, search_form, el){
+	let value = el.options[el.selectedIndex].value;
+	if(value == 'CUSTOM'){
+		select_year_range_button(idx, search_form);
+		$(".timespan_custom").show();
+		return true;
+	} else if (value == 'SINCE'){
+		select_year_range_button('2', search_form);
+		$(".timespan_custom").hide();
+		return true;
+	}else {
+		$(".timespan_custom").hide();
+		return false;
+	}
+}
+
+function select_year_range_button(idx, search_form)
+  {
+  //if(idx==undefined) idx=2;
+  if(! idx.length) idx=2;
+
+  document.getElementById(search_form).period[idx].checked= true;
+  return true;
+  }
+
+function check_start_and_end_years(idx)
+  {
+  //if(idx==undefined) idx=2;
+  if(! idx.length) idx=2;
+
+  if (document.forms[0].period[idx].checked == true && 
+      document.forms[0].startYear.value > document.forms[0].endYear.value) 
+    {
+    // alert('The start year should not be later than the end year.\nThey are switched.');
+    var tmp=document.forms[0].startYear.value;
+    document.forms[0].startYear.value=document.forms[0].endYear.value;
+    document.forms[0].endYear.value=tmp;
+    return false;
+    } 
+
+//  var edition_count=0; 
+//  for (var i=0; i<document.forms[0].editions.length; i++)
+//    { 
+//    if (document.forms[0].editions[i].checked == true)
+//      {
+//      edition_count++;
+//      }
+//    }
+//  if (edition_count ==0)
+//    {
+//    alert('Your have to select at least one database.');
+//    return false;
+//    }
+//
+   return true;
+   }
+
+// WoS 6.0 addition.
+function check_if_chem_selected(){
+      for( var i=0; i<document.forms[0].chem_editions.length; i++){
+              if(document.forms[0].chem_editions[i].checked == true){
+                      return 1;
+              }
+      }
+      return 0;
+}
+
+function check_if_bib_selected(){
+      for( var i=0; i<document.forms[0].editions.length; i++){
+              if(document.forms[0].editions[i].checked == true){
+                      return 1;
+              }
+      }
+      return 0;
+}
+
+function check_if_editions_selected (){
+      for( var i=0; i<document.forms[0].editions.length; i++){
+              if(document.forms[0].editions[i].checked == true){
+                      return 1;
+              }
+      }
+      for( var i=0; i<document.forms[0].fakeEditions.length; i++){
+              if(document.forms[0].fakeEditions[i].checked == true){
+                      return 1;
+              }
+      }
+      return 0;
+}
+
+// Dynamically displays the current limit settings when the limits are hidden
+function set_current_settings(timespanLabel, databasesLabel)
+{
+  try {
+	var content=document.getElementById('db_timespan_current_settings');
+	var currentSettingsArray = new Array();
+	var timespanText;
+	var databaseText;
+	var periodSelected = false;
+	
+	// temporary hack to get rid of javascript popup error on dissimilar search pages
+	if(!document.getElementById('showLimits')) {
+		return false;
+	}
+	
+	// First period option -- week selection
+	if(document.forms[0].period[0].checked == true){
+		var idx = document.forms[0].range.selectedIndex;
+		timespanText = timespanLabel + "=" + document.forms[0].range[idx].text;
+		periodSelected = true;
+    }
+	else if (document.forms[0].period[1].checked == true) {
+		var idxSY = document.forms[0].startYear.selectedIndex;
+		var idxEY = document.forms[0].endYear.selectedIndex;
+		
+		try{
+			var stYear = document.forms[0].startYear[idxSY].text;
+			var enYear = document.forms[0].endYear[idxEY].text;
+			
+			var stYearInt = document.forms[0].startYear[idxSY].value - 0;
+			var enYearInt = document.forms[0].endYear[idxEY].value - 0;
+			
+			if (stYearInt < enYearInt){
+				if (enYear.indexOf("-") != -1)
+					enYearInt = enYear.substring(enYear.indexOf("-") + 1) - 0;
+				timespanText = timespanLabel + "=" + stYearInt + "-" + enYearInt;
+			}
+			else if (stYearInt > enYearInt){
+				if (stYear.indexOf("-") != -1)
+					stYearInt = stYear.substring(stYear.indexOf("-") + 1) - 0;
+				timespanText = timespanLabel + "=" + enYearInt + "-" + stYearInt;
+			}
+			else{ // stYear equals enYear
+				if (stYear.indexOf("-") != -1)
+					stYearInt = stYear;
+				timespanText = timespanLabel + "=" + stYearInt;
+			}
+			periodSelected = true;
+		}catch(e){
+			;
+		}	
+	}
+
+	if (periodSelected == true) {
+		currentSettingsArray.push(timespanText);
+	}
+	
+	// Get selected editions
+	var editionArray = new Array();
+	var editionSelected = false;
+	
+	if (document.forms[0].fakeEditions != null)
+    {
+	    for( var i=0; i<document.forms[0].fakeEditions.length; i++){
+	    	if(document.forms[0].fakeEditions[i].checked == true) {
+	    		//alert("fakeEditions alias value: "+i+": "+document.forms[0].fakeEditions[i].value);
+	    		//alert("fakeEditions name value: "+document.getElementById(alias + '_name').value);
+	      		var alias = document.forms[0].fakeEditions[i].value;
+	      		var name = document.getElementById(alias + '_name').value;
+	      	    editionArray.push(name);    			    		
+	    		editionSelected = true;
+	        }
+	    }
+	}
+	else {
+  
+	    if (document.forms[0].editions != null)
+	    {
+		    for( var i=0; i<document.forms[0].editions.length; i++){
+		    	if(document.forms[0].editions[i].checked == true) {
+		      		var alias = document.forms[0].editions[i].value;
+		      		var name = document.getElementById(alias + '_name').value;
+		      	    editionArray.push(name);    			    		
+		    		editionSelected = true;
+		        }
+		    }
+		}
+	}
+	
+	if (editionSelected == true) {
+    	databaseText = databasesLabel + "=" + editionArray.join("; ");
+   	    currentSettingsArray.push(databaseText);
+    }
+    
+	content.innerHTML = currentSettingsArray.join(". <br>");
+  } catch (e) {
+    return true;
+  }
+  
+}
+// Dynamically displays the current limit settings when the limits are hidden for WCI only
+function WCI_set_current_settings(timespanLabel, databasesLabel)
+{
+  try {
+	var content=document.getElementById('db_timespan_current_settings');
+	var currentSettingsArray = new Array();
+	var timespanText;
+	var databaseText;
+	var periodSelected = false;
+	
+	// temporary hack to get rid of javascript popup error on dissimilar search pages
+	if(!document.getElementById('showLimits')) {
+		return false;
+	}
+	
+	// First period option -- week selection
+	if(document.forms[0].period[0].checked == true){
+		var idx = document.forms[0].range.selectedIndex;
+		timespanText = timespanLabel + "=" + document.forms[0].range[idx].text;
+		periodSelected = true;
+    }else if (document.forms[0].period[1].checked == true) {
+		timespanText = timespanLabel + "=" +document.forms[0].WCIEntDBvalue.value;
+		periodSelected = true;
+	}
+
+	if (periodSelected == true) {
+		currentSettingsArray.push(timespanText);
+	}
+	
+	// Get selected editions
+	var editionArray = new Array();
+	var editionSelected = false;
+	
+	if (document.forms[0].fakeEditions != null)
+    {
+	    for( var i=0; i<document.forms[0].fakeEditions.length; i++){
+	    	if(document.forms[0].fakeEditions[i].checked == true) {
+	    		//alert("fakeEditions alias value: "+i+": "+document.forms[0].fakeEditions[i].value);
+	    		//alert("fakeEditions name value: "+document.getElementById(alias + '_name').value);
+	      		var alias = document.forms[0].fakeEditions[i].value;
+	      		var name = document.getElementById(alias + '_name').value;
+	      	    editionArray.push(name);    			    		
+	    		editionSelected = true;
+	        }
+	    }
+	}
+	else {
+  
+	    if (document.forms[0].editions != null)
+	    {
+		    for( var i=0; i<document.forms[0].editions.length; i++){
+		    	if(document.forms[0].editions[i].checked == true) {
+		      		var alias = document.forms[0].editions[i].value;
+		      		var name = document.getElementById(alias + '_name').value;
+		      	    editionArray.push(name);    			    		
+		    		editionSelected = true;
+		        }
+		    }
+		}
+	}
+	
+	if (editionSelected == true) {
+    	databaseText = databasesLabel + "=" + editionArray.join("; ");
+   	    currentSettingsArray.push(databaseText);
+    }
+    
+	content.innerHTML = currentSettingsArray.join(". ");
+  } catch (e) {
+    return true;
+  }
+  
+}
+
